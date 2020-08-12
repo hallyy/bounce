@@ -1,0 +1,197 @@
+@font-face {
+    font-family: 'passion';
+    font-style: normal;
+    font-weight: 900;
+    src: url('../../res/passion.woff2') format('woff2');
+  }
+  * { margin: 0; padding: 0; }
+  .hide { display: none; }
+  .musicOff::after { display: block !important; }
+  html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      text-align: center;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      user-select: none;
+      font: bold 12px passion;
+  }
+  .game-over {
+      position: absolute;
+      left: 0; right: 0; top: 0; bottom: 0;
+      background-color: rgba(50, 50, 50, .85);
+      color: khaki;
+      font-size: 2em;
+      display: none;
+  }
+  .game-over img {
+      display: block;
+      margin: auto;
+  }
+  .game-over img:first-child {
+      margin-top: 10vh;
+      -webkit-transform: rotateZ(160deg);
+      -moz-transform: rotateZ(160deg);
+      transform: rotateZ(160deg);
+  }
+  .game-over p {
+      display: inline-block;
+  }
+  .panel {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+  }
+  .live {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      margin: 5px;
+      float: left;
+  }
+  .live::after {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 100%;
+      background: red;
+      transform: rotate(-40deg);
+      border-radius: 50% 50% 0 0;
+  }
+  .live::before {
+      content: "";
+      position: absolute;
+      right: 2.5px;
+      width: 10px;
+      height: 100%;
+      background: red;
+      transform: rotate(40deg);
+      border-radius: 50% 50% 0 0;
+  }
+  .startPage {
+      position: absolute;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(50, 50, 50, .85);
+      color: khaki;
+      -webkit-text-shadow: -1px 0 2px black, 0 -1px 2px black, 1px 0 2px black, 0 1px 2px black;
+      -moz-text-shadow: -1px 0 2px black, 0 -1px 2px black, 1px 0 2px black, 0 1px 2px black;
+      text-shadow: -1px 0 2px black, 0 -1px 2px black, 1px 0 2px black, 0 1px 2px black;
+      text-align: center;
+      font-size: 5rem;
+  }
+  .startIcon {
+      margin-top: 10vh;
+      -webkit-transform: rotateZ(-20deg);
+      -moz-transform: rotateZ(-20deg);
+      transform: rotateZ(-20deg);
+  }
+  .startButton, .playAgainButton {
+      display: inline-block;
+      vertical-align: middle;
+      border: 1px solid black;
+      color: white;
+      font-family: inherit;
+      font-size: 2rem;
+      width: 200px;
+      outline: none;
+      -webkit-transform: perspective(1px) translateZ(0);
+      -moz-transform: perspective(1px) translateZ(0);
+      transform: perspective(1px) translateZ(0);
+      box-shadow: 0 0 1px transparent;
+      position: relative;
+      background-color: red;
+      -webkit-transition-property: color;
+      transition-property: color;
+      -webkit-transition-duration: 0.3s;
+      transition-duration: 0.3s;
+      cursor: pointer;
+  }
+  .startButton::before, .playAgainButton::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: crimson;
+      -webkit-transform: scaleY(1);
+      transform: scaleY(1);
+      -webkit-transform-origin: 50%;
+      transform-origin: 50%;
+      -webkit-transition-property: transform;
+      transition-property: transform;
+      -webkit-transition-duration: 0.3s;
+      transition-duration: 0.3s;
+      -webkit-transition-timing-function: ease-out;
+      transition-timing-function: ease-out;
+  }
+  .startButton:hover::before, .playAgainButton:hover::before {
+      -webkit-transform: scaleY(0);
+      transform: scaleY(0);
+  }
+  .playMusic {
+      position: relative;
+      background: transparent;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border: 2px solid white;
+      border-radius: 50%;
+      outline: none;
+      cursor: pointer;
+  }
+  .playMusic::before {
+      content: "\266B";
+      position: absolute;
+      top: 4px;
+      left: 8px;
+  }
+  .playMusic::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 13px;
+      width: 2px;
+      height: 97%;
+      background-color: white;
+      transform: rotateZ(20deg);
+      display: none;
+  }
+  .creators {
+      margin-top: 10px;
+      font-size: 1.2rem;
+  }
+  .creators span {
+      color: white;
+  }
+  @media screen and (max-width: 600px) {
+      .startIcon {
+          width: 180px;
+          height: 180px;
+      }
+      .startPage {
+          font-size: 3rem;
+      }
+      .startButton {
+          width: 120px;
+          font-size: 1.4rem;
+      }
+  }
+  @media screen and (max-height: 600px) {
+      .startIcon {
+          margin-top: 3vh;
+          width: 100px;
+          height: 100px;
+      }
+      .startPage {
+          font-size: 2rem;
+      }
+      .startButton {
+          width: 150px;
+          font-size: 1.4rem;
+      }
+  }

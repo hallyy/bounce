@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game!!!</title>
+
+    <script type="text/javascript" src="lib/three.js"></script>
+    <script type="text/javascript" src="lib/ShadowMapViewer.js"></script>
+    <script type="text/javascript" src="lib/HDRCubeTextureLoader.js"></script>
+    <script type="text/javascript" src="lib/dat.gui.min.js"></script>
+    <script type="text/javascript" src="lib/DragControls.js"></script>
+    <script type="text/javascript" src="lib/TrackballControls.js"></script>
+    <script type="text/javascript" src="lib/OBJLoader.js"></script>
+    <script type="text/javascript" src="lib/LegacyJSONLoader.js"></script>
+    <script type="text/javascript" src="lib/Tween.js"></script>
+    <script src="lib/FirstPersonControls.js"></script>
+    <script src="lib/Detector.js"></script>
+    <script src="js/THREEx.KeyboardState.js"></script>
+
+    <script src="lib/DDSLoader.js"></script>
+    <script src="lib/MTLLoader.js"></script>
+    <script src="lib/OBJLoader.js"></script>
+
+    <script src="js/jquery-1.9.1.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <link rel=stylesheet href="css/jquery-ui.css" />
+    <link rel=stylesheet href="css/info.css"/>
+    <script src="js/info.js"></script>
+
+    <style>
+
+        body {
+            /* set margin to 0 and overflow to hidden, to go fullScreen */
+            margin: 0;
+            overflow: hidden;
+        }
+
+    </style>
+</head>
+<body>
+
+
+    <!-- Div which will hold the Output -->
+    <div id="WebGL-output">
+    </div>
+
+    <script type="text/javascript">
+
+    //  Height and Width Variables
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    var scene, camera, renderer, controls;
+    var surface;
+    var texture,texture2,texture3;
+    var event,objects, sphere, obj;
+    var ambientLight, directionalLight, pointLight;
+    var cube,cubes = [20],cube2,cubes2 = [20];
+    var sound, audioLoader;
+    var surfaceMesh;
+    var planeFight = new THREE.Mesh();
+    var MovingCube,group;
+
+    var collidableMeshList = [];
+    var collidableMeshList1 = [];
+    var arrowList = [];
+    var directionList = [];
+
+    var key = true;
+    var keyboard = new THREEx.KeyboardState();
+
+    var particles, geometry, materials = [], parameters, i, h, color, sprite, size;
+
+    init();
+    animate();
+
+    function init() {
+
+        // create a scene, that will hold all our elements such as objects, cameras and lights.
+        scene = new THREE.Scene();
+
+        //  Cube mapping second method
+        var reflectionCube = THREE.ImageUtils.loadTexture('texture/sky.jpg');
+        reflectionCube.format = THREE.RGBFormat;
+        scene.background = reflectionCube;
+
+        // create a camera, which defines where we're looking at.
+        camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 15000);
+        // position and point the camera to the center of the scene
+        camera.position.x = 7500;
+        camera.position.y = 60;
+        camera.position.z = 300;
+        camera.rotateX(2*Math.PI);
+
+
+        // create a render and set the size
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        var dragControls = new THREE.DragControls( objects, camera, renderer.domElement );
+        dragControls.addEventListener( 'dragstart', function ( event ) { controls.enabled = false; } );
+        dragControls.addEventListener( 'dragend', function ( event ) { controls.enabled = true; } );
+
+        renderer.setClearColor(new THREE.Color(0x49d1ca));
+        renderer.setSize(width , height);
+
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+        //ambientLight
+        ambientLight = new THREE.AmbientLight(0xffffff, 1);
+        scene.add(ambientLight);
+
+        //pointLight
+       /* pointLight = new THREE.PointLight(0xccc6d3, 1, 100);
+        pointLight.position.set(0, 60, 0);
+        pointLight.castShadow = true;
+        pointLight.shadow.camera.near = 0.1;
+        pointLight.shadow.camera.far = 1000;
+        pointLight.shadow.mapSize.width = 1024;
+        pointLight.shadow.mapSize.height = 1024
+        ;
+        scene.add(pointLight);
+        */
+
+        //directionalLight
+        directionalLight = new THREE.DirectionalLight(0x80a2ad);
+        directionalLight.position.set(0, 2, 2);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.camera.near = 1;
+        directionalLight.shadow.camera.far = 500;
+        directionalLight.shadow.camera.right = 550;
+        directionalLight.shadow.camera.left = -550;
+        directionalLight.shadow.camera.top = 550;
+        directionalLight.shadow.camera.bottom = -550;
+        directionalLight.shadow.mapSize.width = 3048;
+        directionalLight.shadow.mapSize.height = 3048;
+        scene.add(directionalLight);
+
+        group = new THREE.Group();
+        scene.add(group);
+
+        //Surface
+        texture = THREE.ImageUtils.loadTexture('texture/road.jpg');
+        surface = new THREE.PlaneGeometry(15000,500 );
+        var surfaceMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, side: THREE.DoubleSide,map:texture});
+        surfaceMesh = new THREE.Mesh(surface, surfaceMaterial);
+        surfaceMesh.rotateX(Math.PI/2);
+        surfaceMesh.position.x = 100;
+        surfaceMesh.position.y = -50;
+        surfaceMesh.position.z = -40;
+        surfaceMesh.receiveShadow = true;
+        scene.add(surfaceMesh);
+
+        //Cubes1
+        var textureBox = new THREE.TextureLoader().load('texture/st.jpeg');
+        var cubeGeometry = new THREE.BoxGeometry(50, 350, 50);
+        var cubeMaterial = new THREE.MeshPhongMaterial({shininess: 100, map: textureBox});
+        cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.position.x = -1450;
+        cube.position.y = 220;
+        cube.position.z = -30;
+
+
+        //  Clone box into boxes array
+        Cubes();
+
+        //  Randomly placed the boxes in scene
+        for (var j = 0; j < cubes.length; j++) {
+
+            //cubes[j].rotateX(Math.PI/2 );
+            cubes[j].position.x =j*400-1000;
+            cubes[j].position.y =(Math.random()-1.5)*100;
+            cubes[j].position.z = -30;
+            cubes[j].castShadow = true;
+            cubes[j].receiveShadow = true;
+            group.add(cubes[j]);
+            collidableMeshList.push(cubes[j]);
+        }
+
+        //Cubes2
+        var texture3Box = new THREE.TextureLoader().load("texture/st.jpeg");
+        var cube2Geometry = new THREE.BoxGeometry(100, 350, 50);
+        var cube2Material = new THREE.MeshPhongMaterial({shininess: 100, map: textureBox});
+        cube2 = new THREE.Mesh(cube2Geometry, cube2Material);
+        cube2.position.x = -1500;
+        cube2.position.y = 360;
+        cube2.position.z =-30;
+
+
+        //  Clone box into boxes array
+        Cubes2();
+
+        //  Randomly placed the boxes in scene
+        for (var k = 0; k < cubes2.length; k++) {
+            //cubes[k].rotateX(Math.PI/2 );
+            cubes2[k].position.x =k*400-1000;
+            cubes2[k].position.y =((Math.random()*2)+3.5)*100;
+            cubes2[k].position.z = -30;
+            cubes2[k].castShadow = true;
+            cubes2[k].receiveShadow = true;
+            group.add(cubes2[k]);
+            collidableMeshList.push(cubes2[k]);
+        }
+
+        //Win point!!
+        texture2 = THREE.ImageUtils.loadTexture("texture/win.jpg");
+        texture2.magFilter = THREE.NearestFilter;
+        texture2.minFilter = THREE.NearestFilter;
+
+        var sphereGeometry = new THREE.CircleGeometry(100, 64, 64);
+        var sphereMaterial = new THREE.MeshPhongMaterial({
+            map: texture2,
+            shininess: 150,
+            specular: 0xffffff,
+            shading: THREE.SmoothShading
+        });
+        sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.set(-1500, 150, -30);
+        sphere.rotateY(Math.PI/2);
+        sphere.castShadow = true;
+        scene.add(sphere);
+        collidableMeshList1.push(sphere);
+
+        //object loader
+        var objectLoader = new THREE.ObjectLoader();
+        objectLoader.load("model/plane-fight-threejs/plane-fight.json", function (obj) {
+
+            planeFight=obj;
+            planeFight.position.y = 60;
+            planeFight.position.z = -30;
+            planeFight.position.x = 7500;
+            planeFight.scale.set(4, 4, 4);
+            pointLight = new THREE.PointLight(0xc9e0e5, 2);
+            planeFight.add(directionalLight);
+            planeFight.castShadow = true;
+            planeFight.receiveShadow = true;
+            scene.add(planeFight);
+            planeFight.rotateY(3*Math.PI/2);
+
+        });
+
+        //Moving Cube
+
+        var cubeGeometry = new THREE.CubeGeometry(120,50,100,1,1,1);
+        var wireMaterial = new THREE.MeshBasicMaterial( { color: 0xbfc9ca, wireframe:true,invisibility:true } );
+        MovingCube = new THREE.Mesh( cubeGeometry, wireMaterial );
+        MovingCube.position.set(7510, 72, -30);
+        MovingCube.visible = false;
+        scene.add( MovingCube );
+
+        //sound!!
+        var listener = new THREE.AudioListener();
+        camera.add(listener);
+
+        audioLoader = new THREE.AudioLoader();
+        sound = new THREE.PositionalAudio(listener);
+        audioLoader.load('audio/audio.mp3', function (buffer) {
+            sound.setBuffer(buffer);
+            sound.setRefDistance(2000);
+            sound.play();
+        });
+        scene.add(sound);
+
+        //  Creating Particles
+        geometry = new THREE.Geometry();
+        var textureLoader = new THREE.TextureLoader();
+        sprite1 = textureLoader.load("texture/snow.png");
+
+        for (i = 0; i < 10000; i++) {
+
+            var vertex = new THREE.Vector3();
+            vertex.x = Math.random() * 2000 - 1000;
+            vertex.y = Math.random() * 2000 - 1000 ;
+            vertex.z = Math.random() * 2000 - 1000 ;
+            geometry.vertices.push(vertex);
+        }
+        vertex.sortParticles = true;
+
+        parameters = [
+            // [[Color in HSL], texture, size
+            [[0.86, 0.04, 0.77], sprite1, 10]
+        ];
+
+        for (i = 0; i < parameters.length; i++) {
+            color = parameters[i][0];
+            sprite = parameters[i][1];
+            size = parameters[i][2];
+            materials[i] = new THREE.PointsMaterial({
+                size: size,
+                map: sprite,
+                //blending: THREE.AdditiveBlending,
+                depthTest: false,
+                transparent: true
+            });
+
+            materials[i].color.setHSL(color[0], color[1], color[2]);
+            particles = new THREE.Points(geometry, materials[i]);
+            particles.rotation.x = Math.random() * 6;
+            particles.rotation.y = Math.random() * 6;
+            particles.rotation.z = Math.random() * 6;
+            scene.add(particles);
+            renderer.domElement.addEventListener('mouseMove', onDocumentMouseMove, false);
+            window.addEventListener('resize', onWindowResize, false);
+        }
+    }
+
+    function onDocumentMouseMove(event) {
+        event.preventDefault();
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+
+    function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function animate() {
+
+        var t = (Date.now() / 1000);
+        // render the scene
+        render();
+
+        requestAnimationFrame(animate);
+
+        camera.position.x-=3;
+        planeFight.position.x-=3;
+        MovingCube.position.x-=3;
+
+        update();
+    }
+
+    function render() {
+
+        //controls.update();
+        camera.updateMatrixWorld();
+        renderer.render( scene, camera );
+    }
+
+    function Cubes() {
+
+        for (var i = 0; i < 20; i++) {
+            cubes[i] = cube.clone();
+        }
+    }
+
+    function Cubes2() {
+
+        for (var j = 0; j < 20; j++) {
+            cubes2[j] = cube2.clone();
+        }
+    }
+
+   function update()
+   {
+
+       if ( keyboard.pressed("up") ){
+
+           planeFight.position.y+=5;
+           MovingCube.position.y+=5;
+       }
+
+       if ( keyboard.pressed("down") )
+       {
+           planeFight.position.y-=5;
+           MovingCube.position.y-=5;
+       }
+       var originPoint = MovingCube.position.clone();
+
+       for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; vertexIndex++)
+       {
+           var localVertex = MovingCube.geometry.vertices[vertexIndex].clone();
+           var globalVertex = localVertex.applyMatrix4( MovingCube.matrix );
+           var directionVector = globalVertex.sub( MovingCube.position );
+           var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+           var collisionResults = ray.intersectObjects( collidableMeshList );
+           var collisionResults1 = ray.intersectObjects( collidableMeshList1 );
+
+           if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length() )
+               window.location.href = "gameover.html";
+
+           if ( collisionResults1.length > 0 && collisionResults1[0].distance < directionVector.length() )
+               window.location.href = "win.html";
+       }
+   }
+</script>
+</body>
+</html>
